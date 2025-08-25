@@ -1,6 +1,5 @@
 package com.hfad.headphonespowercalculator
 
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,9 +37,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.woof.ui.theme.HeadphonesPowerCalculatorTheme
 import com.hfad.headphonespowercalculator.data.LoudnessInfo
 import kotlin.math.log10
@@ -62,6 +59,7 @@ import kotlin.math.sqrt
 import kotlin.text.toDoubleOrNull
 
 class MainActivity : ComponentActivity() {
+    val mainViewModel = MainViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -69,7 +67,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             HeadphonesPowerCalculatorTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    val state by mainViewModel.state.collectAsStateWithLifecycle()
                     HapApp(
+                        mainViewModel::onSensitivityChange,
+                        state,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -79,15 +80,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HapApp(modifier: Modifier = Modifier) {
-    var sensitivity by remember { mutableStateOf("98") }
-    var impedance by remember { mutableStateOf("32") }
-    var loudness by remember { mutableStateOf("120") }
-
-    var resultPower = calculateMilliwatts(loudness, sensitivity)
-    var resultVoltage = calculateVoltage(resultPower, impedance)
-    var resultCurrent = calculateCurrent(resultVoltage, impedance)
-    var resultEquiv = calculateEquiv(sensitivity, impedance)
+fun HapApp(
+    onSensitivityChange: (String) -> Unit = {},
+    state: MainViewModelState,
+    modifier: Modifier = Modifier
+) {
 
     Column(
         modifier
@@ -117,9 +114,9 @@ fun HapApp(modifier: Modifier = Modifier) {
         ) {
             EditNumberField(
                 label = R.string.sensitivity,
-                value = sensitivity,
+                value = state.sensitivity,
                 onValueChange = {
-                    sensitivity = if (it.toIntOrNull() in 0..999) it else ""
+                    onSensitivityChange(it)
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
@@ -134,9 +131,9 @@ fun HapApp(modifier: Modifier = Modifier) {
             )
             EditNumberField(
                 label = R.string.impedance,
-                value = impedance,
+                value = state.impedance,
                 onValueChange = {
-                    impedance = if (it.toIntOrNull() in 0..999) it else ""
+                    //state.impedance = if (it.toIntOrNull() in 0..999) it else ""
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
@@ -148,9 +145,9 @@ fun HapApp(modifier: Modifier = Modifier) {
             )
             EditNumberField(
                 label = R.string.loudness,
-                value = loudness,
+                value = state.loudness,
                 onValueChange = {
-                    loudness = if (it.toIntOrNull() in 0..150) it else ""
+                    //state.loudness = if (it.toIntOrNull() in 0..150) it else ""
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
@@ -160,7 +157,7 @@ fun HapApp(modifier: Modifier = Modifier) {
                     .padding(bottom = dimensionResource(R.dimen.padding_medium))
                     .fillMaxWidth()
             )
-            VolumeInfo(loudness)
+            VolumeInfo(state.loudness)
         }
 
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
@@ -177,10 +174,10 @@ fun HapApp(modifier: Modifier = Modifier) {
             shape = RoundedCornerShape(16.dp)
         ) {
             StatsGrid(
-                resultPower = resultPower,
-                resultVoltage = resultVoltage,
-                resultCurrent = resultCurrent,
-                resultEquiv = resultEquiv
+                resultPower = state.resultPower,
+                resultVoltage = state.resultVoltage,
+                resultCurrent = state.resultCurrent,
+                resultEquiv = state.resultEquiv
             )
         }
         Spacer(Modifier.weight(2f))
@@ -259,10 +256,10 @@ fun VolumeInfo(loudness: String) {
 
 @Composable
 fun StatsGrid(
-    resultPower: Double,
-    resultVoltage: Double,
-    resultCurrent: Double,
-    resultEquiv: Double
+    resultPower: String,
+    resultVoltage: String,
+    resultCurrent: String,
+    resultEquiv: String,
 ) {
     Column(
         modifier = Modifier
@@ -317,7 +314,7 @@ fun StatsGrid(
 fun StatCard(
     icon: ImageVector,
     title: String,
-    value: Double,
+    value: String,
     backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
@@ -346,7 +343,7 @@ fun StatCard(
                     style = MaterialTheme.typography.labelSmall
                 )
                 Text(
-                    text = "%.2f".format(value),
+                    text = value, //"%.2f".format(value),
                     color = Color.White,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
@@ -412,6 +409,16 @@ fun HeadphoneTopAppBar(modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     HeadphonesPowerCalculatorTheme {
-        HapApp()
+        HapApp({},
+            MainViewModelState(
+                "98",
+                "32",
+                "120",
+                "0.00",
+                "0.00",
+                "0.00",
+                "0.00"
+            )
+        )
     }
 }
