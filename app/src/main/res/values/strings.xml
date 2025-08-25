@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Headphones Power Calculator</string>
+
+    <string name="sensitivity">Sensitivity db/mW</string>
+    <string name="impedance">Impedance ohms</string>
+    <string name="loudness">Loudness dB</string>
+
+    <string name="mainResultText">Result:</string>
+    <string name="milliwatts">Required power\n(milliwatts)</string>
+    <string name="volts_rms">Required voltage\n(volts RMS)</string>
+    <string name="milliamps_RMS">Required current\n(millamps RMS)</string>
+    <string name="welcomeButtonText">Headphones/Ampllifier\npress the button</string>
+
+    <string name="power_mw">Power (mW)</string>
+    <string name="equiv_db_1v">Equiv. dB/1v</string>
+    <string name="current_ma">Current (mA)</string>
+    <string name="voltage_v">Voltage (V)</string>
+
+
+    <string name="high_loudness_1_head">High loudness (86–88 dB):</string>
+    <string name="high_loudness_1_body">Be careful! Extended listening at this level may cause discomfort.
+Maximum exposure time 4 hours.</string>
+    <string name="high_loudness_2_head">High loudness (89-91 dB): </string>
+    <string name="high_loudness_2_body">Be careful! Extended listening at this level may cause discomfort.
+Maximum exposure time 2 hours.</string>
+    <string name="high_loudness_3_head">High loudness (92-94 dB):</string>
+    <string name="high_loudness_3_body">Be careful! Extended listening at this level may cause discomfort.
+Maximum exposure time 1 hours.</string>
+    <string name="high_loudness_4_head">High loudness (95-97 dB): </string>
+    <string name="high_loudness_4_body">Be careful! Extended listening at this level may cause discomfort.
+Maximum exposure time 30 minutes.</string>
+
+    <string name="very_high_loudness_1_head">Very high loudness (98-103 dB): </string>
+    <string name="very_high_loudness_1_body">This loudness is dangerous. After about 15 minutes, it can damage your hearing</string>
+    <string name="very_high_loudness_2_head">Very high loudness (104-109 dB): </string>
+    <string name="very_high_loudness_2_body">This loudness is dangerous. After about 4 minutes, it can damage your hearing</string>
+    <string name="very_high_loudness_3_head">Very high loudness (110-120 dB):</string>
+    <string name="very_high_loudness_3_body">This loudness is dangerous. it can damage your hearing in less than a 1 minute</string>
+
+    <string name="extrime_loudness_head">Extreme loudness (121-150 dB):</string>
+    <string name="extrime_loudness_body">This level is harmful and can cause permanent hearing loss in a short time</string>
+
+</resources>
