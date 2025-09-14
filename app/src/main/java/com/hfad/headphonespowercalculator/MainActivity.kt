@@ -52,10 +52,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.woof.ui.theme.HeadphonesPowerCalculatorTheme
+import com.hfad.headphonespowercalculator.data.HpcUiState
 import com.hfad.headphonespowercalculator.data.LoudnessInfo
-import kotlin.math.log10
-import kotlin.math.pow
-import kotlin.math.sqrt
 import kotlin.text.toDoubleOrNull
 
 class MainActivity : ComponentActivity() {
@@ -70,7 +68,9 @@ class MainActivity : ComponentActivity() {
                     val state by mainViewModel.state.collectAsStateWithLifecycle()
                     HapApp(
                         mainViewModel::onSensitivityChange,
-                        state,
+                        mainViewModel::onImpedanceChange,
+                        mainViewModel::onLoudnessChange,
+                        state = state,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -82,7 +82,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun HapApp(
     onSensitivityChange: (String) -> Unit = {},
-    state: MainViewModelState,
+    onImpedanceChange: (String) -> Unit = {},
+    onLoudnessChange: (String) -> Unit = {},
+    state: HpcUiState,
     modifier: Modifier = Modifier
 ) {
 
@@ -133,7 +135,7 @@ fun HapApp(
                 label = R.string.impedance,
                 value = state.impedance,
                 onValueChange = {
-                    //state.impedance = if (it.toIntOrNull() in 0..999) it else ""
+                    onImpedanceChange(it)
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
@@ -147,7 +149,7 @@ fun HapApp(
                 label = R.string.loudness,
                 value = state.loudness,
                 onValueChange = {
-                    //state.loudness = if (it.toIntOrNull() in 0..150) it else ""
+                    onLoudnessChange(it)
                 },
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Number,
@@ -177,34 +179,12 @@ fun HapApp(
                 resultPower = state.resultPower,
                 resultVoltage = state.resultVoltage,
                 resultCurrent = state.resultCurrent,
-                resultEquiv = state.resultEquiv
-            )
+                resultEquiv = state.resultEquiv,
+
+                )
         }
         Spacer(Modifier.weight(2f))
     }
-}
-
-fun calculateEquiv(sensitivity: String, impedance: String): Double {
-    val sensitivity = sensitivity.toDoubleOrNull() ?: 0.00
-    val impedance = impedance.toDoubleOrNull() ?: 0.00
-    return sensitivity + (10 * (log10(1000 / impedance)))
-}
-
-fun calculateCurrent(resultVoltage: Double, impedance: String): Double {
-    val impedance = impedance.toDoubleOrNull() ?: 0.00
-    return (resultVoltage / impedance) * 1000
-}
-
-fun calculateVoltage(requiredPower: Double, impedance: String): Double {
-    val requiredPower = requiredPower * 0.001
-    val impedance = impedance.toDoubleOrNull() ?: 0.00
-    return sqrt(requiredPower * impedance)
-}
-
-fun calculateMilliwatts(loudness: String, sensitivity: String): Double {
-    val loudness = loudness.toDoubleOrNull() ?: 0.00
-    val sensitivity = sensitivity.toDoubleOrNull() ?: 0.00
-    return 10.0.pow((loudness - sensitivity) / 10)
 }
 
 @Composable
@@ -343,7 +323,7 @@ fun StatCard(
                     style = MaterialTheme.typography.labelSmall
                 )
                 Text(
-                    text = value, //"%.2f".format(value),
+                    text = String.format("%.2f", value.toDoubleOrNull()?: 0.00),
                     color = Color.White,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
@@ -409,8 +389,11 @@ fun HeadphoneTopAppBar(modifier: Modifier = Modifier) {
 @Composable
 fun GreetingPreview() {
     HeadphonesPowerCalculatorTheme {
-        HapApp({},
-            MainViewModelState(
+        HapApp(
+            {},
+            {},
+            {},
+            HpcUiState(
                 "98",
                 "32",
                 "120",
