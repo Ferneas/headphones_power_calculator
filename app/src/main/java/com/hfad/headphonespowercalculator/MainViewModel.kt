@@ -27,6 +27,9 @@ class MainViewModel : ViewModel() {
     )
     val state: StateFlow<HpcUiState> = _state.asStateFlow()
 
+    init {
+        updateAllResults()
+    }
     fun onSensitivityChange(sensitivity: String) {
         _state.update {
             it.copy(sensitivity = if (sensitivity.toIntOrNull() in 0..999) sensitivity else "")
@@ -92,9 +95,5 @@ class MainViewModel : ViewModel() {
                 resultEquiv = calculateEquiv(currentState.sensitivity, currentState.impedance)
             )
         }
-    }
-
-    init {
-        updateAllResults()
     }
 }
